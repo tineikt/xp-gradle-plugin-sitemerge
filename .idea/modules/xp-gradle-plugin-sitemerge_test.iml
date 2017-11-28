@@ -30,7 +30,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="xp-gradle-plugin-sitemerge_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -119,6 +118,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="xp-gradle-plugin-sitemerge_main" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>

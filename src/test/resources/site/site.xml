@@ -1,0 +1,14 @@
+<site>
+	<config>
+		<input type="TextLine" name="user">
+			<label>YouTube user</label>
+			<occurrences minimum="1" maximum="1"/>
+		</input>
+		<input type="TextLine" name="key">
+			<label>API key</label>
+			<occurrences minimum="1" maximum="1"/>
+		</input>
+	</config>
+	<x-data mixin="tags"/>
+	<x-data mixin="menu-item"/>
+</site>

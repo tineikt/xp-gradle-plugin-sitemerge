@@ -16,13 +16,18 @@ class MergeSiteXmlTask extends DefaultTask {
 
 	@TaskAction
 	def mergeSiteXml() {
-//        dependsOn getProject().getConfigurations().include
-//        doLast {
+
+		def include = project.configurations.include
+
+		merge(siteXml, target, include)
+	}
+
+	public static merge(String siteXmlFile, String targetFile, def include) {
+		def original = new XmlSlurper().parse(new File(siteXmlFile))
 		def siteFiles = []
-		def original = new XmlSlurper().parse(new File(siteXml))
-		getProject().getConfigurations().include.each {
+		include.each {
 			def configName = it.toString().tokenize('/').last()[0..-5]
-			siteFiles = getProject().zipTree(it).matching({
+			siteFiles = project.zipTree(it).matching({
 				include 'site/site.xml'
 			}).collect()
 
@@ -40,8 +45,7 @@ class MergeSiteXmlTask extends DefaultTask {
 				}
 			})
 		}
-		def writer = new FileWriter(target)
+		def writer = new FileWriter(targetFile)
 		XmlUtil.serialize(original, writer)
-//        }
 	}
 }

@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.Internal
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.*
@@ -16,7 +17,8 @@ class SiteMergeModuleTest {
 	public void setup() {
 		// Prepare build.gradle
 		build_gradle = testProjectDir.newFile('build.gradle')
-		build_gradle << 'plugins { id "no.tine.gradle.xp.SiteMerge" }\n'
+		build_gradle << 'plugins { id "com.enonic.xp.app" version "1.0.13" \n id "no.tine.gradle.xp.SiteMerge" }\n'
+		build_gradle << 'dependencies {  files("test/resources/test.jar") }\n'
 	}
 
 	/**
@@ -40,9 +42,24 @@ class SiteMergeModuleTest {
 	}
 
 	@Test
-	void helloWorld_standard() {
-		def result = gradle('helloWorld')
-		assert result.task(":helloWorld").outcome == SUCCESS
-		assert result.output.contains("Hello, world!")
+	void siteMerge() {
+		build_gradle << """
+            task mergeSiteXml(type: SiteMerge) {
+                siteXml = 'src/test/resources/site/site.xml'
+				target = 'src/test/resources/build.xml'
+            }
+            """
+
+		def result = gradle('mergeSiteXml')
+
+		assert result.task(":mergeSiteXml").outcome == SUCCESS
+	}
+
+	@Test
+	void mergeSiteXmlTask() {
+
+		def result = gradle('merge')
+
+		assert result.task(":merge").outcome == SUCCESS
 	}
 }

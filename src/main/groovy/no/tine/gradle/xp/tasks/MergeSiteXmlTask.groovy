@@ -2,7 +2,6 @@ package no.tine.gradle.xp.tasks
 
 import groovy.xml.XmlUtil
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
@@ -17,15 +16,10 @@ class MergeSiteXmlTask extends DefaultTask {
 	@TaskAction
 	def mergeSiteXml() {
 
-		def include = project.configurations.include
-
-		merge(siteXml, target, include)
-	}
-
-	public static merge(String siteXmlFile, String targetFile, def include) {
-		def original = new XmlSlurper().parse(new File(siteXmlFile))
+		def original = new XmlSlurper().parse(new File(siteXml))
 		def siteFiles = []
-		include.each {
+
+		project.configurations.include.each {
 			def configName = it.toString().tokenize('/').last()[0..-5]
 			siteFiles = project.zipTree(it).matching({
 				include 'site/site.xml'
@@ -45,7 +39,7 @@ class MergeSiteXmlTask extends DefaultTask {
 				}
 			})
 		}
-		def writer = new FileWriter(targetFile)
+		def writer = new FileWriter(target)
 		XmlUtil.serialize(original, writer)
 	}
 }

@@ -14,7 +14,7 @@ class SiteMergeModuleTest {
 	private File build_gradle
 
 	@Before
-	public void setup() {
+	void setup() {
 		// Prepare build.gradle
 		build_gradle = testProjectDir.newFile('build.gradle')
 		build_gradle << 'plugins { id "com.enonic.xp.app" version "1.0.13" \n id "no.tine.gradle.xp.SiteMerge" }\n'
@@ -44,22 +44,15 @@ class SiteMergeModuleTest {
 	@Test
 	void siteMerge() {
 		build_gradle << """
-            task mergeSiteXml(type: SiteMerge) {
+            task merge(type: SiteMerge) {
                 siteXml = 'src/test/resources/site/site.xml'
 				target = 'src/test/resources/build.xml'
             }
             """
 
-		def result = gradle('mergeSiteXml')
-
-		assert result.task(":mergeSiteXml").outcome == SUCCESS
-	}
-
-	@Test
-	void mergeSiteXmlTask() {
-
 		def result = gradle('merge')
 
 		assert result.task(":merge").outcome == SUCCESS
 	}
+
 }

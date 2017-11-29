@@ -15,7 +15,7 @@ plugins {
 }
 ```
 
-Add a task. E.g
+Add a task. E.g 
 
 ```
 task merge(type: SiteMerge) {	

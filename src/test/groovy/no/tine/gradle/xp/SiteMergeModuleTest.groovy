@@ -18,7 +18,7 @@ class SiteMergeModuleTest {
 		// Prepare build.gradle
 		build_gradle = testProjectDir.newFile('build.gradle')
 		build_gradle << 'plugins { id "com.enonic.xp.app" version "1.0.13" \n id "no.tine.gradle.xp.SiteMerge" }\n'
-		build_gradle << 'dependencies {  files("test/resources/test.jar") }\n'
+		build_gradle << 'dependencies {  include files("/home/soland/git/xp-gradle-plugin-sitemerge/src/test/resources/test.jar") }\n'
 	}
 
 	/**
@@ -41,18 +41,13 @@ class SiteMergeModuleTest {
 		gradle(true, arguments)
 	}
 
+
 	@Test
-	void siteMerge() {
-		build_gradle << """
-            task merge(type: SiteMerge) {
-                siteXml = 'src/test/resources/site/site.xml'
-				target = 'src/test/resources/build.xml'
-            }
-            """
+	void siteMerge2() {
 
-		def result = gradle('merge')
+		def result = gradle('mergeSitesXml', '-Pjunit.test=true')
 
-		assert result.task(":merge").outcome == SUCCESS
+		//result.task(":MergeSites")
 	}
 
 }

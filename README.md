@@ -1,4 +1,7 @@
 # xp-gradle-plugin-sitemerge
+[![Build Status](https://travis-ci.org/tineikt/xp-gradle-plugin-sitemerge.svg?branch=master)](https://travis-ci.org/tineikt/xp-gradle-plugin-sitemerge)
+[![License](https://img.shields.io/github/license/tineikt/xp-gradle-plugin-sitemerge.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
 This Gradle plugin does the following:
 
 Merges site.xml(com.enonic.xp.app) from included dependencies. It will merge 

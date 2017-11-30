@@ -10,11 +10,5 @@ class SiteMerge implements Plugin<Project> {
     void apply(final Project project) {
 		SiteMergeModule.load(project)
 		this.project = project
-		this.add()
     }
-
-	private void add() {
-		this.project.getConfigurations().create("mergeSitesXml")
-	}
-
 }

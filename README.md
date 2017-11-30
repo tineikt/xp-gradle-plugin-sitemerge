@@ -1,12 +1,18 @@
 # xp-gradle-plugin-sitemerge
 This Gradle plugin does the following:
 
-Merges site.xml(com.enonic.xp.app) from included dependencies.
+Merges site.xml(com.enonic.xp.app) from included dependencies. It will merge 
+into both your build site.xml and the src site.xml. The merged result will be marked
+with merged="xp-gradle-plugin-sitemerge"
 
-NB! Needs gradle plugin com.enonic.xp.app.
+```
+ <input name="key" merged="xp-gradle-plugin-sitemerge" type="TextLine">
+      <label>API key (site)</label>
+      <occurrences maximum="1" minimum="1"/>
+ </input>
+```
 
-
-To use this plugin, just add the following to your build.gradle file:
+To use this plugin, just add the following to your build.gradle file: 
 
 ```
 plugins {
@@ -14,12 +20,10 @@ plugins {
   id 'no.tine.gradle.xp.SiteMerge' version '1.0.0'
 }
 ```
+NB! Needs gradle plugin com.enonic.xp.app.
 
-Add a task. E.g 
+Add this depends on jar in your build.gradle file. 
 
 ```
-task merge(type: SiteMerge) {	
-  siteXml = 'src/main/resources/site/site.xml'
-  target = 'build/resources/main/site/site.xml'
-}
+jar.dependsOn("mergeSitesXml")
 ```

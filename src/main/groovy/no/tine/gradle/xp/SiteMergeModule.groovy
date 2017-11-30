@@ -4,24 +4,21 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.xml.XmlUtil
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.tasks.TaskExecutionException
 
-class SiteMergeModule {
+class SiteMergeModule implements SiteMergeConstants {
 
-
-	static def siteXml = "src/main/resources/site/site.xml"
-	static def target  = "build/resources/main/site/site.xml"
-
-	static def testSiteXml = "src/test/resources/site/site.xml"
-	static def testTarget = "src/test/resources/build.xml"
 
 	static void load(Project project) {
+
 		/*
         * Register a 'siteMerge' extension
         */
 		project.extensions.create("siteMerge", SiteMergeExtension)
 
-		project.task('mergeSitesXml') {
+		/*
+		* Register the actual task with name {@link SiteMergeConstants#taskName}. It will depends on jar.
+		*/
+		project.task(taskName) {
 			group = "MergeSite"
 			description = "Merge site.xml from different projects onto one site.xml"
 
@@ -33,31 +30,58 @@ class SiteMergeModule {
 		}
 	}
 
-	static void merge(Project project) {
+	/**
+	 * Performs a merge of site.xml from dependencies marked with include.
+	 *
+	 * @param project
+	 */
+	static void merge(final Project project) {
 		final def include = project.configurations.include
-		final def siteXml = project.hasProperty("junit.test") ? testSiteXml :siteXml
-		final def original = new XmlSlurper().parse(new File(siteXml))
+		final def siteXml = project.hasProperty(testParameter) ? testSiteXml : siteXml
+		final GPathResult original = new XmlSlurper().parse(new File(siteXml))
+
 		def siteFiles = []
 
-		include.each {
-			siteFiles = findSiteXmlFiles(it, project)
+		include.each { def jar ->
+			siteFiles = findSiteXmlFiles(jar, project)
 
-			siteFiles.forEach({
-				appendToOriginal(it, original)
-			})
+			siteFiles.forEach { def siteFile ->
+				appendToOriginal(siteFile, original)
+			}
 		}
-		final def target = project.hasProperty("junit.test") ? testTarget : target
 
-		def writer = new FileWriter(target)
-		def originalWriter = new FileWriter(siteXml)
-
-		XmlUtil.serialize(original, writer)
-		XmlUtil.serialize(original, originalWriter)
+		write(original, project, siteXml)
 	}
 
-	static void appendToOriginal(file, original) {
+	/**
+	 * Writes the result of the merge to target folder and site.xml folder in src.
+	 *
+	 * @param original content that is modified.
+	 * @param project
+	 */
+	static void write(final GPathResult original, final Project project, final String siteXml) {
+		final def target = project.hasProperty(testParameter) ? testTarget : target
+		write(original, target, siteXml)
+	}
 
-		def siteLib = new XmlSlurper().parse(file)
+
+	static void write(final GPathResult original, String ...file) {
+		file.each { def fileName ->
+			def writer = new FileWriter(fileName)
+			XmlUtil.serialize(original, writer)
+		}
+	}
+
+	/**
+	 * Perform removal of old merges. This merges is marked with attribute 'merged=xp-gradle-plugin-sitemerge'.
+	 *
+	 * @param file of type site.xml located inside a jar.
+	 * @param original what is too be modified.
+	 */
+	static void appendToOriginal(final File file, final GPathResult original) {
+
+		GPathResult siteLib = new XmlSlurper().parse(file)
+
 		def configName = file.toString().tokenize('/').last()[0..-5]
 
 		removeOldMerges(original)
@@ -65,26 +89,40 @@ class SiteMergeModule {
 		appendToConfig(siteLib, original, configName)
 
 		appendXData(siteLib, original, configName)
-
 	}
 
-	static def removeOldMerges(original) {
-		original.config.children().findAll { it.@merged=="xp-gradle-plugin-sitemerge" }.each { it.replaceNode {}  }
-		original.children().findAll { it.attributes().get('merged') == "xp-gradle-plugin-sitemerge" }.each { it.replaceNode {}  }
+	/**
+	 * Removed old merge result from the original so it it not duplicated.
+	 *
+	 * @return a clean original
+	 */
+	static def removeOldMerges(final GPathResult original) {
+		original.config.children().findAll { it.@merged == mergedAttribute }.each { it.replaceNode {} }
+		original.children().findAll { it.attributes().get(mergedAttributeName) == mergedAttribute }.each { it.replaceNode {} }
 	}
 
-	static findSiteXmlFiles(def file, Project project) {
+	/**
+	 * @return all site.xmls inside the 'include' dependencies.
+	 */
+	static findSiteXmlFiles(final def file, final Project project) {
 		return project.zipTree(file).matching({
 			include 'site/site.xml'
 		}).collect()
 	}
 
-	static void appendToConfig(GPathResult siteLib, original, configName) {
+	/**
+	 * Append other site.xml config from 'include' dependencies to the original <config></config>
+	 *
+	 * @param siteLib is the site.xml from the included jar.
+	 * @param original that will be added to.
+	 * @param configName do be used as label.
+	 */
+	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final configName) {
 		siteLib.config.children().each{ def toBeAdded ->
 			if(toBeAdded.label) {
 				toBeAdded.label.replaceBody (toBeAdded.label.toString() + ' (' + configName + ')')
 			}
-			toBeAdded.@merged = "xp-gradle-plugin-sitemerge"
+			toBeAdded.@merged = mergedAttribute
 
 			if (original.config.findAll{ it.@name == toBeAdded.@name}.size() > 0) {
 				throw new GradleException("Duplicate config with same name found. Name was " + toBeAdded.@name )
@@ -94,18 +132,19 @@ class SiteMergeModule {
 		}
 	}
 
-	static void appendXData(GPathResult siteLib, original, configName) {
+	/**
+	 * Add mixing's and other x-data elements to the original site.xml.
+	 *
+	 * @param siteLib  is the site.xml from the included jar.
+	 * @param original that will be appended too.
+	 * @param configName to be added as attribute 'lib-src'
+	 */
+	static void appendXData(final GPathResult siteLib, final GPathResult original, final configName) {
 		siteLib['x-data'].each { def toBeAdded ->
 			toBeAdded.attributes()['lib-src'] = configName
-			toBeAdded.@merged = "xp-gradle-plugin-sitemerge"
+			toBeAdded.@merged = mergedAttribute
 
-//			if (original.children().findAll { def originalElements ->
-//				originalElements.attributes().get('mixin') != null && originalElements.@mixin == toBeAdded.@mixin
-//			}.size() > 0) {
-//				throw new GradleException("Duplicate mixin's with same name found. Name was " + toBeAdded.@mixin )
-//			}
-
-			original.appendNode(toBeAdded)
+			(original << toBeAdded)
 		}
 	}
 }

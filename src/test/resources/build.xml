@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><site>
+  <config>
+    <input name="user" merged="xp-gradle-plugin-sitemerge" type="TextLine">
+      <label>YouTube user (site)</label>
+      <occurrences maximum="1" minimum="1"/>
+    </input>
+    <input name="key" merged="xp-gradle-plugin-sitemerge" type="TextLine">
+      <label>API key (site)</label>
+      <occurrences maximum="1" minimum="1"/>
+    </input>
+  </config>
+  <x-data mixin="tags2" lib-src="site"/>
+  <x-data mixin="tags" lib-src="site" merged="xp-gradle-plugin-sitemerge"/>
+  <x-data mixin="menu-item" lib-src="site" merged="xp-gradle-plugin-sitemerge"/>
+</site>

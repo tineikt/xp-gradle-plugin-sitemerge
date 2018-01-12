@@ -82,13 +82,17 @@ class SiteMergeModule implements SiteMergeConstants {
 
 		GPathResult siteLib = new XmlSlurper().parse(file)
 
-		def configName = file.toString().tokenize('/').last()[0..-5]
+		def configName = getConfigName(file, File.separator)
 
 		removeOldMerges(original)
 
 		appendToConfig(siteLib, original, configName)
 
 		appendXData(siteLib, original, configName)
+	}
+
+	static String getConfigName(File file, String separator) {
+		return file.toString().tokenize(separator).last()[0..-5]
 	}
 
 	/**

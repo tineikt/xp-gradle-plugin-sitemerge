@@ -67,8 +67,9 @@ class SiteMergeModule implements SiteMergeConstants {
 
 	static void write(final GPathResult original, String ...file) {
 		file.each { def fileName ->
-			def writer = new FileWriter(fileName)
-			XmlUtil.serialize(original, writer)
+				new FileWriter(fileName).withWriter() {  writer ->
+					XmlUtil.serialize(original, writer)
+				}
 		}
 	}
 

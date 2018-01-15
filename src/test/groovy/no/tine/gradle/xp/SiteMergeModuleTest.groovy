@@ -37,4 +37,26 @@ class SiteMergeModuleTest extends Specification {
 		originalFile[0].children.size() == 3
 	}
 
+	def "Get config name on windows"() {
+		setup:
+		File file = new File("C:\\temp\\site\\site.xml")
+
+		when:
+		String name = SiteMergeModule.getConfigName(file, "\\")
+
+		then:
+		name == "site"
+	}
+
+	def "Get config name on linux"() {
+		setup:
+		File file = new File("/temp/test/site/site.xml")
+
+		when:
+		String name = SiteMergeModule.getConfigName(file, "/")
+
+		then:
+		name == "site"
+	}
+
 }

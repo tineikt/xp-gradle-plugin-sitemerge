@@ -2,11 +2,8 @@ package no.tine.gradle.xp
 
 import groovy.util.slurpersupport.Attributes
 import groovy.util.slurpersupport.GPathResult
-import groovy.util.slurpersupport.NodeChildren
 import groovy.xml.XmlUtil
-import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.w3c.dom.Node
 
 class SiteMergeModule implements SiteMergeConstants {
 
@@ -47,14 +44,25 @@ class SiteMergeModule implements SiteMergeConstants {
 		def siteFiles = []
 
 		include.each { def jar ->
+			String name = getJarName(jar)
 			siteFiles = findSiteXmlFiles(jar, project)
 
 			siteFiles.forEach { def siteFile ->
-				appendToOriginal(siteFile, original)
+				appendToOriginal(siteFile, original, name)
+				original = new XmlSlurper().parseText(XmlUtil.serialize(original))
 			}
+
 		}
 
 		write(original, project, siteXml)
+	}
+
+	static String getMergedAttribute(final String name) {
+		return mergedAttribute + "-" + name
+	}
+
+	static String getJarName(File file) {
+		return file.name.lastIndexOf('.').with {it != -1 ? file.name[0..<it] : file.name}
 	}
 
 	/**
@@ -71,9 +79,9 @@ class SiteMergeModule implements SiteMergeConstants {
 
 	static void write(final GPathResult original, String ...file) {
 		file.each { def fileName ->
-				new FileWriter(fileName).withWriter() {  writer ->
-					XmlUtil.serialize(original, writer)
-				}
+			new FileWriter(fileName).withWriter() {  writer ->
+				XmlUtil.serialize(original, writer)
+			}
 		}
 	}
 
@@ -82,18 +90,19 @@ class SiteMergeModule implements SiteMergeConstants {
 	 *
 	 * @param file of type site.xml located inside a jar.
 	 * @param original what is too be modified.
+	 * @param name is the name of the jar.
 	 */
-	static void appendToOriginal(final File file, final GPathResult original) {
+	static void appendToOriginal(final File file, final GPathResult original, final String name) {
 
 		GPathResult siteLib = new XmlSlurper().parse(file)
 
 		def configName = getConfigName(file, File.separator)
 
-		removeOldMerges(original)
+		removeOldMerges(original, name)
 
-		appendToConfig(siteLib, original, configName)
+		appendToConfig(siteLib, original, configName, name)
 
-		appendXData(siteLib, original, configName)
+		appendXData(siteLib, original, configName, name)
 	}
 
 	static String getConfigName(File file, String separator) {
@@ -105,9 +114,10 @@ class SiteMergeModule implements SiteMergeConstants {
 	 *
 	 * @return a clean original
 	 */
-	static def removeOldMerges(final GPathResult original) {
-		original.config.children().findAll { it.@merged == mergedAttribute }.each { it.replaceNode {} }
-		original.children().findAll { it.attributes().get(mergedAttributeName) == mergedAttribute }.each { it.replaceNode {} }
+	static def removeOldMerges(GPathResult original, final String name) {
+		String attributeName = getMergedAttribute(name)
+		original.config.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
+		original.children().findAll { it.attributes().get(mergedAttributeName) == attributeName }.each { it.replaceNode {} }
 	}
 
 	/**
@@ -126,17 +136,18 @@ class SiteMergeModule implements SiteMergeConstants {
 	 * @param original that will be added to.
 	 * @param configName do be used as label.
 	 */
-	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final configName) {
+	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final String configName,
+							   final String name) {
 		siteLib.config.children().each{ def toBeAdded ->
 			if(toBeAdded.label) {
 				toBeAdded.label.replaceBody (toBeAdded.label.toString() + ' (' + configName + ')')
 			}
-			toBeAdded.@merged = mergedAttribute
+			toBeAdded.@merged = getMergedAttribute(name)
 
 			if (!isDuplicate(original, toBeAdded.@name)) {
 				original.config.appendNode(toBeAdded)
 			} else {
-				println(toBeAdded.@name)
+				println("Duplicate found: " + toBeAdded.@name)
 			}
 
 		}
@@ -152,17 +163,19 @@ class SiteMergeModule implements SiteMergeConstants {
 		}
 		return result
 	}
-/**
+
+	/**
 	 * Add mixing's and other x-data elements to the original site.xml.
 	 *
 	 * @param siteLib  is the site.xml from the included jar.
 	 * @param original that will be appended too.
 	 * @param configName to be added as attribute 'lib-src'
 	 */
-	static void appendXData(final GPathResult siteLib, final GPathResult original, final configName) {
+	static void appendXData(final GPathResult siteLib, final GPathResult original, final String configName,
+							final String name) {
 		siteLib['x-data'].each { def toBeAdded ->
 			toBeAdded.attributes()['lib-src'] = configName
-			toBeAdded.@merged = mergedAttribute
+			toBeAdded.@merged = getMergedAttribute(name)
 
 			(original << toBeAdded)
 		}

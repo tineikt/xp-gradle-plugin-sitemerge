@@ -4,12 +4,12 @@
       <label>API key (site)</label>
       <occurrences maximum="1" minimum="1"/>
     </input>
-    <input name="user" merged="xp-gradle-plugin-sitemerge" type="TextLine">
+    <input merged="xp-gradle-plugin-sitemerge-test" name="user" type="TextLine">
       <label>YouTube user (site)</label>
       <occurrences maximum="1" minimum="1"/>
     </input>
   </config>
   <x-data mixin="tags2" lib-src="site"/>
-  <x-data mixin="tags" lib-src="site" merged="xp-gradle-plugin-sitemerge"/>
-  <x-data mixin="menu-item" lib-src="site" merged="xp-gradle-plugin-sitemerge"/>
+  <x-data mixin="tags" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
+  <x-data mixin="menu-item" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
 </site>

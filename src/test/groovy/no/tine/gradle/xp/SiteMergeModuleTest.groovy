@@ -59,4 +59,16 @@ class SiteMergeModuleTest extends Specification {
 		name == "site"
 	}
 
+	def "Get file name on linux"() {
+		setup:
+		File file = new File("/temp/test/site/test.jar")
+
+		when:
+		String name = SiteMergeModule.getJarName(file)
+
+		then:
+		name == "test"
+	}
+
+
 }

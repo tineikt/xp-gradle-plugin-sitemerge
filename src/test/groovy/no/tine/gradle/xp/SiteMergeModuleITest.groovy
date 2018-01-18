@@ -17,6 +17,7 @@ class SiteMergeModuleITest {
 		// Prepare build.gradle
 		build_gradle = testProjectDir.newFile('build.gradle')
 		build_gradle << 'plugins { id "com.enonic.xp.app" version "1.0.13" \n id "no.tine.gradle.xp.SiteMerge" }\n'
+		build_gradle << 'siteMerge { siteXml = "src/test/resources/site/site.xml" \n target = "src/test/resources/build.xml" }\n'
 		build_gradle << 'dependencies { include files("../resources/test/test.jar") }\n'
 	}
 

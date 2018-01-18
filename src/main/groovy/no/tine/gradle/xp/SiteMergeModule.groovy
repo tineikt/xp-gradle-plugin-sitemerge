@@ -7,13 +7,14 @@ import org.gradle.api.Project
 
 class SiteMergeModule implements SiteMergeConstants {
 
+	private static SiteMergeExtension extension
 
 	static void load(Project project) {
 
 		/*
         * Register a 'siteMerge' extension
         */
-		project.extensions.create("siteMerge", SiteMergeExtension)
+		extension = project.extensions.create("siteMerge", SiteMergeExtension)
 
 		/*
 		* Register the actual task with name {@link SiteMergeConstants#taskName}. It will depends on jar.
@@ -37,7 +38,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 */
 	static void merge(final Project project) {
 		final def include = project.configurations.include
-		final def siteXml = project.hasProperty(testParameter) ? testSiteXml : siteXml
+		final def siteXml = extension.getSiteXml() ? extension.getSiteXml() : siteXml
 		final GPathResult original = new XmlSlurper().parse(new File(siteXml))
 
 		def siteFiles = []
@@ -60,7 +61,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 * @param project
 	 */
 	static void write(final GPathResult original, final Project project, final String siteXml) {
-		final def target = project.hasProperty(testParameter) ? testTarget : target
+		final def target = extension.getTarget() ? extension.getTarget() : target
 		write(original, target, siteXml)
 	}
 

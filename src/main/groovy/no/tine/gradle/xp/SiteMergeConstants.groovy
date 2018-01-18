@@ -8,12 +8,7 @@ interface SiteMergeConstants {
 	/** Original site xml file. */
 	def siteXml = "src/main/resources/site/site.xml"
 	/** Target site.xml build file. */
-	def target  = "build/resources/main/site/site.xml"
-
-	/** Test mode variables */
-	def testSiteXml = "src/test/resources/site/site.xml"
-	def testTarget = "src/test/resources/build.xml"
-	def testParameter = "junit.test"
+	def target  = "resources/main/site/site.xml"
 
 	/** Name of merged attribute */
 	def mergedAttribute = "xp-gradle-plugin-sitemerge"

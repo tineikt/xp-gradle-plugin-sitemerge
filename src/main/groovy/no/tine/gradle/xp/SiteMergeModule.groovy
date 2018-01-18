@@ -1,9 +1,12 @@
 package no.tine.gradle.xp
 
+import groovy.util.slurpersupport.Attributes
 import groovy.util.slurpersupport.GPathResult
+import groovy.util.slurpersupport.NodeChildren
 import groovy.xml.XmlUtil
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.w3c.dom.Node
 
 class SiteMergeModule implements SiteMergeConstants {
 
@@ -130,15 +133,26 @@ class SiteMergeModule implements SiteMergeConstants {
 			}
 			toBeAdded.@merged = mergedAttribute
 
-			if (original.config.findAll{ it.@name == toBeAdded.@name}.size() > 0) {
-				throw new GradleException("Duplicate config with same name found. Name was " + toBeAdded.@name )
+			if (!isDuplicate(original, toBeAdded.@name)) {
+				original.config.appendNode(toBeAdded)
+			} else {
+				println(toBeAdded.@name)
 			}
 
-			original.config.appendNode(toBeAdded)
 		}
 	}
 
 	/**
+	 * Find if the key exits already.
+	 */
+	static boolean isDuplicate(GPathResult original, Attributes name) {
+		def newXml = new XmlSlurper().parseText(XmlUtil.serialize(original))
+		def result = newXml.config.children().any {
+			el -> el.@name.text() == name.text()
+		}
+		return result
+	}
+/**
 	 * Add mixing's and other x-data elements to the original site.xml.
 	 *
 	 * @param siteLib  is the site.xml from the included jar.

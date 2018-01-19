@@ -39,6 +39,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	static void merge(final Project project) {
 		final def include = project.configurations.include
 		final def siteXml = extension.getSiteXml() ? extension.getSiteXml() : siteXml
+		println("Original source site xml: " + siteXml)
 		final GPathResult original = new XmlSlurper().parse(new File(siteXml))
 
 		def siteFiles = []
@@ -73,6 +74,8 @@ class SiteMergeModule implements SiteMergeConstants {
 	 */
 	static void write(final GPathResult original, final Project project, final String siteXml) {
 		final def target = extension.getTarget() ? extension.getTarget() : target
+		println("Destination site xml: " + target)
+		println(siteXml)
 		write(original, target, siteXml)
 	}
 

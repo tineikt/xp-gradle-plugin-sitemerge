@@ -30,7 +30,7 @@ class SiteMergeModuleTest extends Specification {
 		GPathResult siteLib = new XmlSlurper().parseText(siteXml)
 
 		when:
-		SiteMergeModule.appendXData(siteLib, originalFile, 'site')
+		SiteMergeModule.appendXData(siteLib, originalFile, 'xp-lib', 'site')
 
 		then:
 		//println XmlUtil.serialize(originalFile)

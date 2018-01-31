@@ -1,6 +1,6 @@
 plugins {
-    id 'groovy'
-    id 'java-gradle-plugin'
+	id 'groovy'
+	id 'java-gradle-plugin'
 
 	// Publishing publicly
 	id 'com.gradle.plugin-publish' version '0.9.7'
@@ -11,23 +11,22 @@ plugins {
 }
 
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+	// Use jcenter for resolving your dependencies.
+	// You can declare any Maven/Ivy/file repository here.
+	jcenter()
 	maven {
 		url "https://plugins.gradle.org/m2/"
 	}
 }
 
 dependencies {
-    // Use the latest Groovy version for building this library
-    compile 'org.codehaus.groovy:groovy-all:2.4.12'
-    compile gradleApi()
-    compile localGroovy()
+	// Use the latest Groovy version for building this library
+	compile 'org.codehaus.groovy:groovy-all:2.4.12'
+	compile gradleApi()
+	compile localGroovy()
 
-
-    // Use the awesome Spock testing and specification framework
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+	// Use the awesome Spock testing and specification framework
+	testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 }
 
 sourceCompatibility = 1.7
@@ -73,4 +72,3 @@ pluginBundle {
 		}
 	}
 }
-

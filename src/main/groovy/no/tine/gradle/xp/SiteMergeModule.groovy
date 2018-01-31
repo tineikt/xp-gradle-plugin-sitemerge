@@ -106,6 +106,9 @@ class SiteMergeModule implements SiteMergeConstants {
 		appendToConfig(siteLib, original, configName, name)
 
 		appendXData(siteLib, original, configName, name)
+
+		appendMappings(siteLib, original, configName, name)
+
 	}
 
 	static String getConfigName(File file, String separator) {
@@ -121,6 +124,7 @@ class SiteMergeModule implements SiteMergeConstants {
 		String attributeName = getMergedAttribute(name)
 		original.config.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
 		original.children().findAll { it.attributes().get(mergedAttributeName) == attributeName }.each { it.replaceNode {} }
+		original.mappings.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
 	}
 
 	/**
@@ -139,8 +143,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 * @param original that will be added to.
 	 * @param configName do be used as label.
 	 */
-	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final String configName,
-							   final String name) {
+	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
 		siteLib.config.children().each{ def toBeAdded ->
 			if(toBeAdded.label) {
 				toBeAdded.label.replaceBody (toBeAdded.label.toString() + ' (' + configName + ')')
@@ -168,14 +171,13 @@ class SiteMergeModule implements SiteMergeConstants {
 	}
 
 	/**
-	 * Add mixing's and other x-data elements to the original site.xml.
+	 * Add mixin's and other x-data elements to the original site.xml.
 	 *
 	 * @param siteLib  is the site.xml from the included jar.
 	 * @param original that will be appended too.
 	 * @param configName to be added as attribute 'lib-src'
 	 */
-	static void appendXData(final GPathResult siteLib, final GPathResult original, final String configName,
-							final String name) {
+	static void appendXData(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
 		siteLib['x-data'].each { def toBeAdded ->
 			toBeAdded.attributes()['lib-src'] = configName
 			toBeAdded.@merged = getMergedAttribute(name)
@@ -183,4 +185,21 @@ class SiteMergeModule implements SiteMergeConstants {
 			(original << toBeAdded)
 		}
 	}
+
+	/**
+	 * Add mappings to the original site.xml.
+	 *
+	 * @param siteLib  is the site.xml from the included jar.
+	 * @param original that will be appended too.
+	 * @param configName to be added as attribute 'lib-src'
+	 */
+	static void appendMappings(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
+		siteLib.mappings['mapping'].each { def toBeAdded ->
+			toBeAdded.attributes()['lib-src'] = configName
+			toBeAdded.@merged = getMergedAttribute(name)
+
+			(original.mappings << toBeAdded)
+		}
+	}
+
 }

@@ -3,11 +3,12 @@ package no.tine.gradle.xp
 import groovy.util.slurpersupport.GPathResult
 import spock.lang.Shared
 import spock.lang.Specification
+import groovy.xml.XmlUtil
 
 class SiteMergeModuleTest extends Specification {
 
 	@Shared
-	def original = '<site><config></config><x-data mixin="tags1" lib-src="site"/></site>'
+	def original = '<site><config></config><x-data mixin="tags1" lib-src="site"/><mappings><mapping controller="default3.js" lib-src="site"></mapping></mappings></site>'
 
 	@Shared
 	def siteXml =
@@ -19,6 +20,10 @@ class SiteMergeModuleTest extends Specification {
 			'   </input>' +
 			' </config>' +
 			' <x-data mixin="tags2" lib-src="site"/>' +
+			' <mappings>' +
+			'   <mapping controller="default1.js" lib-src="site" merged="xp-gradle-plugin-sitemerge"></mapping>' +
+			'   <mapping controller="default2.js" lib-src="site" merged="xp-gradle-plugin-sitemerge"></mapping>' +
+			' </mappings>' +
 			'</site>'
 
 	def setup() {
@@ -33,8 +38,21 @@ class SiteMergeModuleTest extends Specification {
 		SiteMergeModule.appendXData(siteLib, originalFile, 'xp-lib', 'site')
 
 		then:
-		//println XmlUtil.serialize(originalFile)
-		originalFile[0].children.size() == 3
+		// println XmlUtil.serialize(originalFile)
+		originalFile[0].children().size() == 4
+	}
+
+	def "AppendMappings"() {
+		setup:
+		GPathResult originalFile = new XmlSlurper().parseText(original)
+		GPathResult siteLib = new XmlSlurper().parseText(siteXml)
+
+		when:
+		SiteMergeModule.appendMappings(siteLib, originalFile, 'xp-lib', 'site')
+
+		then:
+		// println XmlUtil.serialize(originalFile)
+		originalFile[0].children().findAll { it.name() == 'mappings' }[0].children().size() == 3
 	}
 
 	def "Get config name on windows"() {

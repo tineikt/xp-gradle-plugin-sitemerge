@@ -66,7 +66,7 @@ class SiteMergeModuleTest extends Specification {
 			SiteMergeModule.AppendFilters(siteLib, originalFile, 'xp-lib', 'site')
 
 		then:
-			originalFile[0].children().findAll { it.name() == 'filters' }[0].children().size() == 1
+			originalFile[0].children().findAll { it.name() == 'filters' }[0].children().size() == 2
 	}
 
 	def "Get config name on windows"() {

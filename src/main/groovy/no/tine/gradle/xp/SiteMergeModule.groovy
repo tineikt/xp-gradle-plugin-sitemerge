@@ -210,7 +210,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 * @param configName to be added as attribute 'lib-src'
 	 */
 	static void AppendFilters(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
-		siteLib.mappings['filters'].each { def toBeAdded ->
+		siteLib.filters['response-filter'].each { def toBeAdded ->
 			toBeAdded.attributes()['lib-src'] = configName
 			toBeAdded.@merged = getMergedAttribute(name)
 

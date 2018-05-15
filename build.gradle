@@ -39,7 +39,7 @@ targetCompatibility = 1.7
 
 project.description     = 'Merge site.xml that is in included in \'include\' tag in build.gradle'
 project.group           = 'no.tine.gradle.xp'
-project.version         = '1.1.3'
+project.version         = '1.1.4'
 
 project.ext.name        = 'SiteMerge'
 project.ext.pluginId    = 'no.tine.gradle.xp.SiteMerge'

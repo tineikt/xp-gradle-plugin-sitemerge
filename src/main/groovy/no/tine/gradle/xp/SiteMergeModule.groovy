@@ -202,4 +202,20 @@ class SiteMergeModule implements SiteMergeConstants {
 		}
 	}
 
+	/**
+	 * Add filters to the original site.xml.
+	 *
+	 * @param siteLib  is the site.xml from the included jar.
+	 * @param original that will be appended too.
+	 * @param configName to be added as attribute 'lib-src'
+	 */
+	static void AppendFilters(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
+		siteLib.mappings['filters'].each { def toBeAdded ->
+			toBeAdded.attributes()['lib-src'] = configName
+			toBeAdded.@merged = getMergedAttribute(name)
+
+			(original.filters << toBeAdded)
+		}
+	}
+
 }

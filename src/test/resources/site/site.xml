@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><site>
-  <config>
+  <form>
     <input name="key" type="TextLine">
       <label>API key (site)</label>
       <occurrences maximum="1" minimum="1"/>
@@ -8,8 +8,8 @@
       <label>YouTube user (site)</label>
       <occurrences maximum="1" minimum="1"/>
     </input>
-  </config>
-  <x-data mixin="tags2" lib-src="site"/>
-  <x-data mixin="tags" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
-  <x-data mixin="menu-item" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
+  </form>
+  <x-data name="tags2" lib-src="site"/>
+  <x-data name="tags" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
+  <x-data name="menu-item" lib-src="site" merged="xp-gradle-plugin-sitemerge-test"/>
 </site>

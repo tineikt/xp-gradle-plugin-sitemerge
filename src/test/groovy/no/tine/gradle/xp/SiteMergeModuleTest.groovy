@@ -8,25 +8,25 @@ import groovy.xml.XmlUtil
 class SiteMergeModuleTest extends Specification {
 
 	@Shared
-	def original = '<site><config></config><x-data mixin="tags1" lib-src="site"/><mappings><mapping controller="default3.js" lib-src="site"></mapping></mappings><filters><response-filter name="default-response-filter1" order="10" lib-src="site" /></filters></site>'
+	def original = '<site><form></form><x-data name="tags1" lib-src="site"/><mappings><mapping controller="default3.js" lib-src="site"></mapping></mappings><processors><response-filter name="default-response-filter2" order="20" lib-src="site" /></processors></site>'
 
 	@Shared
 	def siteXml =
 			'<site>' +
-			' <config>' +
+			' <form>' +
 			'   <input name="key" merged="xp-gradle-plugin-sitemerge" type="TextLine">' +
 			'     <label>API key (site)</label>' +
 			'     <occurrences maximum="1" minimum="1"/>' +
 			'   </input>' +
-			' </config>' +
-			' <x-data mixin="tags2" lib-src="site"/>' +
+			' </form>' +
+			' <x-data name="tags2" lib-src="site"/>' +
 			' <mappings>' +
 			'   <mapping controller="default1.js" lib-src="site" merged="xp-gradle-plugin-sitemerge"></mapping>' +
 			'   <mapping controller="default2.js" lib-src="site" merged="xp-gradle-plugin-sitemerge"></mapping>' +
 			' </mappings>' +
-			' <filters>' +
+			' <processors>' +
 			'   <response-filter name="default-response-filter1" order="10" lib-src="site" merged="xp-gradle-plugin-sitemerge"></response-filter>' +
-			' </filters>' +
+			' </processors>' +
 			'</site>'
 
 	def setup() {
@@ -57,16 +57,16 @@ class SiteMergeModuleTest extends Specification {
 			originalFile[0].children().findAll { it.name() == 'mappings' }[0].children().size() == 3
 	}
 
-	def "AppendFilters"() {
+	def "AppendProcessors"() {
 		setup:
 			GPathResult originalFile = new XmlSlurper().parseText(original)
 			GPathResult siteLib = new XmlSlurper().parseText(siteXml)
 
 		when:
-			SiteMergeModule.AppendFilters(siteLib, originalFile, 'xp-lib', 'site')
+			SiteMergeModule.appendProcessors(siteLib, originalFile, 'xp-lib', 'site')
 
 		then:
-			originalFile[0].children().findAll { it.name() == 'filters' }[0].children().size() == 2
+			originalFile[0].children().findAll { it.name() == 'processors' }[0].children().size() == 2
 	}
 
 	def "Get config name on windows"() {
@@ -101,6 +101,4 @@ class SiteMergeModuleTest extends Specification {
 		then:
 			name == "test"
 	}
-
-
 }

@@ -103,11 +103,13 @@ class SiteMergeModule implements SiteMergeConstants {
 
 		removeOldMerges(original, name)
 
-		appendToConfig(siteLib, original, configName, name)
+		appendToForm(siteLib, original, configName, name)
 
 		appendXData(siteLib, original, configName, name)
 
 		appendMappings(siteLib, original, configName, name)
+
+		appendProcessors(siteLib, original, configName, name)
 
 	}
 
@@ -122,7 +124,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 */
 	static def removeOldMerges(GPathResult original, final String name) {
 		String attributeName = getMergedAttribute(name)
-		original.config.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
+		original.form.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
 		original.children().findAll { it.attributes().get(mergedAttributeName) == attributeName }.each { it.replaceNode {} }
 		original.mappings.children().findAll { it.@merged == attributeName }.each { it.replaceNode {} }
 	}
@@ -137,21 +139,21 @@ class SiteMergeModule implements SiteMergeConstants {
 	}
 
 	/**
-	 * Append other site.xml config from 'include' dependencies to the original <config></config>
+	 * Append other site.xml form from 'include' dependencies to the original <form></form>
 	 *
 	 * @param siteLib is the site.xml from the included jar.
 	 * @param original that will be added to.
 	 * @param configName do be used as label.
 	 */
-	static void appendToConfig(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
-		siteLib.config.children().each{ def toBeAdded ->
+	static void appendToForm(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
+		siteLib.form.children().each{ def toBeAdded ->
 			if(toBeAdded.label) {
 				toBeAdded.label.replaceBody (toBeAdded.label.toString() + ' (' + configName + ')')
 			}
 			toBeAdded.@merged = getMergedAttribute(name)
 
 			if (!isDuplicate(original, toBeAdded.@name)) {
-				original.config.appendNode(toBeAdded)
+				original.form.appendNode(toBeAdded)
 			} else {
 				println("Duplicate found: " + toBeAdded.@name)
 			}
@@ -164,7 +166,7 @@ class SiteMergeModule implements SiteMergeConstants {
 	 */
 	static boolean isDuplicate(GPathResult original, Attributes name) {
 		def newXml = new XmlSlurper().parseText(XmlUtil.serialize(original))
-		def result = newXml.config.children().any {
+		def result = newXml.form.children().any {
 			el -> el.@name.text() == name.text()
 		}
 		return result
@@ -203,18 +205,18 @@ class SiteMergeModule implements SiteMergeConstants {
 	}
 
 	/**
-	 * Add filters to the original site.xml.
+	 * Add processors to the original site.xml.
 	 *
 	 * @param siteLib  is the site.xml from the included jar.
 	 * @param original that will be appended too.
 	 * @param configName to be added as attribute 'lib-src'
 	 */
-	static void AppendFilters(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
-		siteLib.filters['response-filter'].each { def toBeAdded ->
+	static void appendProcessors(final GPathResult siteLib, final GPathResult original, final String configName, final String name) {
+		siteLib.processors['response-filter'].each { def toBeAdded ->
 			toBeAdded.attributes()['lib-src'] = configName
 			toBeAdded.@merged = getMergedAttribute(name)
 
-			(original.filters << toBeAdded)
+			(original.processors << toBeAdded)
 		}
 	}
 

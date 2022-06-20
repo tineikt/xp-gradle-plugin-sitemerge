@@ -4,6 +4,8 @@
 
 This Gradle plugin does the following:
 
+This is the updated version that supports xp7. There are some changes in the xml schema. <config> -> <form> and so on
+
 Merges site.xml(com.enonic.xp.app) from included dependencies. It will merge 
 into both your build site.xml and the src site.xml. The merged result will be marked
 with merged="xp-gradle-plugin-sitemerge-youtube"
@@ -20,7 +22,7 @@ To use this plugin, just add the following to your build.gradle file:
 ```
 plugins {
   id 'com.enonic.xp.app' version '1.0.17'
-  id 'no.tine.gradle.xp.SiteMerge' version '1.1.1'
+  id 'no.tine.gradle.xp7.SiteMerge' version '2.0.0'
 }
 ```
 NB! Needs gradle plugin com.enonic.xp.app.
